@@ -1,0 +1,32 @@
+.layout {
+    -fx-padding: 16;
+    -fx-background-color: #C8A2C8;
+    -fx-font-family: "SansSerif";
+}
+
+.title {
+    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+    -fx-text-fill: #FFFFFF;
+}
+
+.input-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFFFFF;
+}
+
+.text-field:disabled {
+    -fx-opacity: 1.0;
+    -fx-text-fill: #808080;
+}
+
+.error {
+    -fx-text-fill: #ff0000;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.instruction {
+    -fx-font-size: 14px;
+    -fx-text-fill: #e1e6e2;
+}

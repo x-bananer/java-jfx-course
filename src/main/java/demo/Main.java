@@ -18,8 +18,7 @@ public class Main {
 
         // FlowAndTilePane.launch(FlowAndTilePane.class);
 
-        CSSExample.launch(CSSExample.class);
-
-
+        // CSSExample.launch(CSSExample.class);
+        CanvasExample.launch(CanvasExample.class);
     }
 }

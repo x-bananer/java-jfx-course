@@ -103,5 +103,4 @@ public class CurrencyView {
 
         return layout;
     }
-
 }

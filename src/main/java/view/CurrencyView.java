@@ -1,13 +1,14 @@
-package module_6_2;
+package view;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.text.TextAlignment;
+import entity.Currency;
+import controller.CurrencyController;
 
 public class CurrencyView {
     private final CurrencyController controller = new CurrencyController();
@@ -27,8 +28,13 @@ public class CurrencyView {
         }));
 
         Label fromCurrencyLabel = new Label("From");
+        Label errorLabel = new Label("");
         ChoiceBox<Currency> fromCurrencyChoiceBox = new ChoiceBox<>();
-        fromCurrencyChoiceBox.getItems().addAll(controller.getCurrencies());
+        try {
+            fromCurrencyChoiceBox.getItems().addAll(controller.getCurrencies());
+        } catch (Exception e) {
+            errorLabel.setText("Database not available");
+        }
         fromCurrencyChoiceBox.getSelectionModel().select(0);
 
         TextField toAmountInput = new TextField();
@@ -37,10 +43,12 @@ public class CurrencyView {
 
         Label toCurrencyLabel = new Label("To");
         ChoiceBox<Currency> toCurrencyChoiceBox = new ChoiceBox<>();
-        toCurrencyChoiceBox.getItems().addAll(controller.getCurrencies());
+        try {
+            toCurrencyChoiceBox.getItems().addAll(controller.getCurrencies());
+        } catch (Exception e) {
+            errorLabel.setText("Database not available");
+        }
         toCurrencyChoiceBox.getSelectionModel().select(0);
-
-        Label errorLabel = new Label("");
 
         Button button = new Button("Convert");
         button.setOnAction(new EventHandler<ActionEvent>() {
@@ -57,6 +65,8 @@ public class CurrencyView {
                     errorLabel.setText("");
                 } catch (IllegalArgumentException ex) {
                     errorLabel.setText(ex.getMessage());
+                } catch (Exception ex) {
+                    errorLabel.setText("Database not available");
                 }
             }
         });

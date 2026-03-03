@@ -1,6 +1,7 @@
-package module_6_2;
+package entity;
 
 public class Currency {
+
     private String abbreviation;
     private String name;
     private double conversionRateToUsd;
@@ -11,7 +12,11 @@ public class Currency {
         this.conversionRateToUsd = conversionRateToUsd;
     }
 
-    public double getRateToUsd() {
+    public String getAbbreviation() {
+        return abbreviation;
+    }
+
+    public double getConversionRateToUsd() {
         return conversionRateToUsd;
     }
 

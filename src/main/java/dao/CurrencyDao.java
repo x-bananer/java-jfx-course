@@ -1,52 +1,32 @@
 package dao;
 
-import datasource.MariaDbConnection;
+import datasource.MariaDbJpaConnection;
 import entity.Currency;
+import jakarta.persistence.EntityManager;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class CurrencyDao {
-    public double getRateByAbbreviation(String abbreviation) throws SQLException {
-        String sql = "SELECT conversion_rate_to_usd FROM CURRENCY WHERE abbreviation = ?";
 
-        Connection conn = MariaDbConnection.getConnection();
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setString(1, abbreviation);
-
-        ResultSet rs = ps.executeQuery();
-
-        if (rs.next()) {
-            return rs.getDouble(1);
-        } else {
-            throw new SQLException("Currency not found");
-        }
+    public List<Currency> getAllCurrencies() {
+        EntityManager entityManager = MariaDbJpaConnection.getInstance();
+        return entityManager.createQuery(
+                "select c from Currency c order by c.abbreviation",
+                Currency.class
+        ).getResultList();
     }
 
-    public List<Currency> getAllCurrencies() throws SQLException {
-
-        String sql = "SELECT abbreviation, name, conversion_rate_to_usd FROM CURRENCY";
-        List<Currency> currencies = new ArrayList<>();
-
-        Connection conn = MariaDbConnection.getConnection();
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(sql);
-
-        while (rs.next()) {
-            String abbr = rs.getString("abbreviation");
-            String name = rs.getString("name");
-            double rate = rs.getDouble("conversion_rate_to_usd");
-
-            currencies.add(new Currency(abbr, name, rate));
-        }
-
-        return currencies;
+    public double getRateByAbbreviation(String abbreviation) {
+        EntityManager entityManager = MariaDbJpaConnection.getInstance();
+        return entityManager.createQuery("select c.conversionRateToUsd from Currency c where c.abbreviation = :abbreviation", Double.class)
+                .setParameter("abbreviation", abbreviation)
+                .getSingleResult();
     }
 
+    public void persist(Currency currency) {
+        EntityManager entityManager = MariaDbJpaConnection.getInstance();
+        entityManager.getTransaction().begin();
+        entityManager.persist(currency);
+        entityManager.getTransaction().commit();
+    }
 }

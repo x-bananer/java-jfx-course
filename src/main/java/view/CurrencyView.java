@@ -1,24 +1,33 @@
 package view;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import entity.Currency;
 import controller.CurrencyController;
 
+import java.util.List;
+
 public class CurrencyView {
     private final CurrencyController controller = new CurrencyController();
+
+    private final ChoiceBox<Currency> fromCurrencyChoiceBox = new ChoiceBox<>();
+    private final ChoiceBox<Currency> toCurrencyChoiceBox = new ChoiceBox<>();
+    private final Label errorLabel = new Label("");
+    private final TextField fromAmountInput = new TextField();
+    private final TextField toAmountInput = new TextField();
 
     public VBox create() {
         Label title = new Label("Currency Converter");
 
         Label instruction = new Label("How to use Currency Converter? \n Enter an amount, choose currencies, and press \"Convert\" \nto convert money from one currency to another. \n Please edit only the \"From\" field.");
 
-        TextField fromAmountInput = new TextField();
         fromAmountInput.setTextFormatter(new TextFormatter<String>(change -> {
             String newText = change.getControlNewText();
             if (newText.matches("[0-9.,]*")) {
@@ -28,50 +37,36 @@ public class CurrencyView {
         }));
 
         Label fromCurrencyLabel = new Label("From");
-        Label errorLabel = new Label("");
-        ChoiceBox<Currency> fromCurrencyChoiceBox = new ChoiceBox<>();
-        try {
-            fromCurrencyChoiceBox.getItems().addAll(controller.getCurrencies());
-        } catch (Exception e) {
-            errorLabel.setText("Database not available");
-        }
-        fromCurrencyChoiceBox.getSelectionModel().select(0);
+        refreshCurrencies();
 
-        TextField toAmountInput = new TextField();
         toAmountInput.setEditable(false);
         toAmountInput.setDisable(true);
 
         Label toCurrencyLabel = new Label("To");
-        ChoiceBox<Currency> toCurrencyChoiceBox = new ChoiceBox<>();
-        try {
-            toCurrencyChoiceBox.getItems().addAll(controller.getCurrencies());
-        } catch (Exception e) {
-            errorLabel.setText("Database not available");
-        }
-        toCurrencyChoiceBox.getSelectionModel().select(0);
 
         Button button = new Button("Convert");
-        button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
-                    double result = controller.convertSafe(
-                            fromAmountInput.getText(),
-                            fromCurrencyChoiceBox.getValue(),
-                            toCurrencyChoiceBox.getValue()
-                    );
+        button.setOnAction(event -> {
+            try {
+                double result = controller.convertAmount(
+                        fromAmountInput.getText(),
+                        fromCurrencyChoiceBox.getValue(),
+                        toCurrencyChoiceBox.getValue()
+                );
 
-                    toAmountInput.setText(String.format("%.2f", result));
-                    errorLabel.setText("");
-                } catch (IllegalArgumentException ex) {
-                    errorLabel.setText(ex.getMessage());
-                } catch (Exception ex) {
-                    errorLabel.setText("Database not available");
-                }
+                toAmountInput.setText(String.format("%.2f", result));
+                errorLabel.setText("");
+            } catch (IllegalArgumentException ex) {
+                errorLabel.setText(ex.getMessage());
+            } catch (Exception ex) {
+                errorLabel.setText("Database not available");
             }
         });
 
+        Button addCurrencyButton = new Button("Add Currency");
+        addCurrencyButton.setOnAction(event -> openAddCurrencyWindow(button));
+
         button.setMaxWidth(Double.MAX_VALUE);
+        addCurrencyButton.setMaxWidth(Double.MAX_VALUE);
 
         title.setAlignment(Pos.CENTER);
         title.setMaxWidth(Double.MAX_VALUE);
@@ -106,11 +101,46 @@ public class CurrencyView {
 
         HBox middle = new HBox(20);
         middle.getChildren().addAll(leftCol, rightCol);
+        HBox.setHgrow(leftCol, Priority.ALWAYS);
+        HBox.setHgrow(rightCol, Priority.ALWAYS);
 
         VBox layout = new VBox(12);
-        layout.getChildren().addAll(title, middle, button, errorLabel, instruction);
+        layout.getChildren().addAll(title, middle, button, addCurrencyButton, errorLabel, instruction);
         layout.getStyleClass().add("layout");
 
         return layout;
+    }
+
+    private void refreshCurrencies() {
+        try {
+            List<Currency> currencies = controller.getCurrencies();
+            fromCurrencyChoiceBox.getItems().setAll(currencies);
+            toCurrencyChoiceBox.getItems().setAll(currencies);
+
+            if (!currencies.isEmpty()) {
+                fromCurrencyChoiceBox.getSelectionModel().selectFirst();
+                toCurrencyChoiceBox.getSelectionModel().selectFirst();
+            }
+            errorLabel.setText("");
+        } catch (Exception e) {
+            fromCurrencyChoiceBox.getItems().clear();
+            toCurrencyChoiceBox.getItems().clear();
+            errorLabel.setText("Database not available");
+        }
+    }
+
+    private void openAddCurrencyWindow(Button sourceButton) {
+        Stage newStage = new Stage();
+        newStage.initModality(Modality.APPLICATION_MODAL);
+        newStage.initOwner(sourceButton.getScene().getWindow());
+        newStage.setTitle("Add Currency");
+
+        AddCurrencyView addCurrencyView = new AddCurrencyView(controller, newStage);
+        Scene scene = new Scene(addCurrencyView.create(), 380, 260);
+        scene.getStylesheets().add(getClass().getResource("/currency.css").toExternalForm());
+
+        newStage.setScene(scene);
+        newStage.showAndWait();
+        refreshCurrencies();
     }
 }

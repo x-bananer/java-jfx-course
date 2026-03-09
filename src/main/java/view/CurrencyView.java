@@ -24,6 +24,12 @@ public class CurrencyView {
     private final TextField toAmountInput = new TextField();
 
     public VBox create() {
+        try {
+            controller.createCurrencies();
+        } catch (Exception e) {
+            errorLabel.setText("Database not available");
+        }
+
         Label title = new Label("Currency Converter");
 
         Label instruction = new Label("How to use Currency Converter? \n Enter an amount, choose currencies, and press \"Convert\" \nto convert money from one currency to another. \n Please edit only the \"From\" field.");
@@ -37,7 +43,7 @@ public class CurrencyView {
         }));
 
         Label fromCurrencyLabel = new Label("From");
-        refreshCurrencies();
+        updateCurrencies();
 
         toAmountInput.setEditable(false);
         toAmountInput.setDisable(true);
@@ -111,7 +117,7 @@ public class CurrencyView {
         return layout;
     }
 
-    private void refreshCurrencies() {
+    private void updateCurrencies() {
         try {
             List<Currency> currencies = controller.getCurrencies();
             fromCurrencyChoiceBox.getItems().setAll(currencies);
@@ -141,6 +147,6 @@ public class CurrencyView {
 
         newStage.setScene(scene);
         newStage.showAndWait();
-        refreshCurrencies();
+        updateCurrencies();
     }
 }

@@ -1,11 +1,11 @@
 package entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "currency")
@@ -20,9 +20,6 @@ public class Currency {
     @Column(name = "conversion_rate_to_usd")
     private double conversionRateToUsd;
 
-    public Currency() {
-    }
-
     public Currency(String abbreviation, String name, double conversionRateToUsd) {
         this.abbreviation = abbreviation;
         this.name = name;
@@ -33,28 +30,8 @@ public class Currency {
         return id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setAbbreviation(String abbreviation) {
-        this.abbreviation = abbreviation;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setConversionRateToUsd(double conversionRateToUsd) {
-        this.conversionRateToUsd = conversionRateToUsd;
-    }
-
     public String getAbbreviation() {
         return abbreviation;
-    }
-
-    public double getConversionRateToUsd() {
-        return conversionRateToUsd;
     }
 
     @Override
